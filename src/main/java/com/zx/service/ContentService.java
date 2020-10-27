@@ -13,8 +13,8 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
@@ -22,7 +22,6 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -68,8 +67,10 @@ public class ContentService {
         sourceBuilder.from(pageNo);
         sourceBuilder.size(pageSize);
 
-        // 精准匹配
-        TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery("title", keyword);
+        // 模糊匹配
+        MatchQueryBuilder termQueryBuilder = QueryBuilders.matchQuery("title", keyword);
+        //精确匹配
+//        QueryBuilders.termQuery("title", keyword);
         sourceBuilder.query(termQueryBuilder);
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
@@ -78,7 +79,7 @@ public class ContentService {
         SearchResponse search = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
 
         // 解析结果
-        List<Map<String,Object>> list = new ArrayList<>();
+        List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
         for (SearchHit documentFields : search.getHits().getHits()) {
             list.add(documentFields.getSourceAsMap());
         }
@@ -98,9 +99,12 @@ public class ContentService {
         sourceBuilder.from(pageNo);
         sourceBuilder.size(pageSize);
 
-        // 精准匹配
-        TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery("title", keyword);
-        sourceBuilder.query(termQueryBuilder);
+        // 模糊匹配
+        MatchQueryBuilder matchQueryBuilder = QueryBuilders.matchQuery("title", keyword);
+        //精确匹配
+//        TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery("title", keyword);
+//        sourceBuilder.query(termQueryBuilder);
+        sourceBuilder.query(matchQueryBuilder);
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
         // 高亮

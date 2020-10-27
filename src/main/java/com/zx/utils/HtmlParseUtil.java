@@ -34,7 +34,7 @@ public class HtmlParseUtil {
         List<Content> goodList = new ArrayList<>();
         // 获取元素内容,每个li标签
         for (Element el : elements) {
-            String img = el.getElementsByTag("img").eq(0).attr("src");
+            String img = el.getElementsByTag("img").eq(0).attr("data-lazy-img");
             String price = el.getElementsByClass("p-price").eq(0).text();
             String title = el.getElementsByClass("p-name").eq(0).text();
             Content content = new Content();
