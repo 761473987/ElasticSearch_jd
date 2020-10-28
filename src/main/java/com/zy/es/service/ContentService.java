@@ -2,6 +2,7 @@ package com.zy.es.service;
 
 import com.alibaba.fastjson.JSON;
 import com.zy.es.pojo.Content;
+import com.zy.es.pojo.JdGoods;
 import com.zy.es.utils.HtmlParseUtil;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -19,6 +20,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +39,9 @@ import java.util.concurrent.TimeUnit;
 public class ContentService {
     @Autowired
     private RestHighLevelClient restHighLevelClient;
+    
+    @Autowired
+    private IJdGoodsService goodsService;
 
 
     // 1.解析数据放入es搜索中
@@ -45,11 +50,18 @@ public class ContentService {
         // 把查询到的数据放入es中
         BulkRequest bulkRequest = new BulkRequest();
         bulkRequest.timeout("2m");
+        List<JdGoods> goodsList = new ArrayList<JdGoods>();
         for (int i = 0; i < contents.size(); i++) {
             bulkRequest.add(new IndexRequest("jd_goods")
             .source(JSON.toJSONString(contents.get(i)),XContentType.JSON));
-
+            //填充到数据实体类
+            JdGoods goods = new JdGoods();
+            BeanUtils.copyProperties(contents.get(i), goods);
+            goodsList.add(goods);
         }
+        
+        //填充到数据库
+        goodsService.saveBatch(goodsList);
         BulkResponse bulk = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
 //        return !bulk.hasFailures();
         return !bulk.hasFailures() ? "填充数据成功！" : "填充数据失败！";
