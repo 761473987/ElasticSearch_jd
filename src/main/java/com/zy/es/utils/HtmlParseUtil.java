@@ -1,21 +1,19 @@
-package com.zx.utils;
+package com.zy.es.utils;
 
-import com.zx.pojo.Content;
+import com.zy.es.pojo.Content;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author ZhangXiong
+ * @author liuzhiyun
  * @version v12.0.1
- * @date 2020-06-28
+ * @date 2020-10-23
  */
 public class HtmlParseUtil {
     public static void main(String[] args) throws Exception {
@@ -34,7 +32,7 @@ public class HtmlParseUtil {
         List<Content> goodList = new ArrayList<>();
         // 获取元素内容,每个li标签
         for (Element el : elements) {
-            String img = el.getElementsByTag("img").eq(0).attr("src");
+            String img = el.getElementsByTag("img").eq(0).attr("data-lazy-img");
             String price = el.getElementsByClass("p-price").eq(0).text();
             String title = el.getElementsByClass("p-name").eq(0).text();
             Content content = new Content();

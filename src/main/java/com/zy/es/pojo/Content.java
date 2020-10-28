@@ -1,13 +1,13 @@
-package com.zx.pojo;
+package com.zy.es.pojo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @author ZhangXiong
+ * @author liuzhiyun
  * @version v12.0.1
- * @date 2020-06-28
+ * @date 2020-10-23
  */
 @Data
 @AllArgsConstructor

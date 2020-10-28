@@ -1,6 +1,9 @@
 server:
-  port: 9090
+  port: 80
 # 关闭thymeleaf缓存
 spring:
   thymeleaf:
     cache: false
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306

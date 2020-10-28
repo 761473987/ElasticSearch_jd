@@ -1,8 +1,8 @@
-package com.zx.service;
+package com.zy.es.service;
 
 import com.alibaba.fastjson.JSON;
-import com.zx.pojo.Content;
-import com.zx.utils.HtmlParseUtil;
+import com.zy.es.pojo.Content;
+import com.zy.es.utils.HtmlParseUtil;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -13,8 +13,8 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
@@ -22,16 +22,15 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author ZhangXiong
+ * @author liuzhiyun
  * @version v12.0.1
- * @date 2020-06-28
+ * @date 2020-10-23
  */
 // 业务编写
 @Service
@@ -41,7 +40,7 @@ public class ContentService {
 
 
     // 1.解析数据放入es搜索中
-    public Boolean parseContent(String keywords) throws Exception{
+    public String parseContent(String keywords) throws Exception{
         List<Content> contents = new HtmlParseUtil().parseJD(keywords);
         // 把查询到的数据放入es中
         BulkRequest bulkRequest = new BulkRequest();
@@ -52,7 +51,8 @@ public class ContentService {
 
         }
         BulkResponse bulk = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
-        return !bulk.hasFailures();
+//        return !bulk.hasFailures();
+        return !bulk.hasFailures() ? "填充数据成功！" : "填充数据失败！";
     }
 
     // 2.获取这些数据实现搜索功能
@@ -68,9 +68,13 @@ public class ContentService {
         sourceBuilder.from(pageNo);
         sourceBuilder.size(pageSize);
 
+        
         // 精准匹配
-        TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery("title", keyword);
-        sourceBuilder.query(termQueryBuilder);
+//        TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery("title", keyword);
+//        sourceBuilder.query(termQueryBuilder);
+        //模糊匹配
+        MatchQueryBuilder queryBuilder = QueryBuilders.matchQuery("title", keyword);
+        sourceBuilder.query(queryBuilder);
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
         // 执行搜索
@@ -99,8 +103,11 @@ public class ContentService {
         sourceBuilder.size(pageSize);
 
         // 精准匹配
-        TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery("title", keyword);
-        sourceBuilder.query(termQueryBuilder);
+//        TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery("title", keyword);
+//        sourceBuilder.query(termQueryBuilder);
+        //模糊匹配
+        MatchQueryBuilder queryBuilder = QueryBuilders.matchQuery("title", keyword);
+        sourceBuilder.query(queryBuilder);
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
         // 高亮
